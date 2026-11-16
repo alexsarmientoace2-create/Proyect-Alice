@@ -50,12 +50,14 @@ public class PlayerController : MonoBehaviour
     private SpriteRenderer swordSpriteRenderer;
     private Animator animator;
     private LevelManager levelManager;
+    private GameManager gameManager;
+    private GameObject gameManagerGO;
 
     [Header("Combat & Health")]
     private HealthSystem playerHealth;
     public float damageTaken;
-    [SerializeField] private Vector2 damageRecoil;
-    [SerializeField] private float recoilTime;
+    [SerializeField] private Vector2 pushDirection;
+    [SerializeField] private float pushTime;
     [SerializeField] private Collider2D hurtboxCollider;
 
     [Header("Combat Visuals & Effects")]
@@ -78,6 +80,8 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+        gameManagerGO = GameObject.FindGameObjectWithTag("GameManager");
+        gameManager = gameManagerGO.GetComponent<GameManager>();
         levelManager = ManagerGo.GetComponent<LevelManager>();
         playerUIManager = ManagerGo.GetComponent<PlayerUIManager>();
         currentStamina = maxStamina;
@@ -347,7 +351,7 @@ public class PlayerController : MonoBehaviour
         {
             rb.linearVelocity = Vector2.zero;
             Vector2 collisionPosition = new Vector2(collision.transform.position.x, collision.transform.position.y);
-            recoil(collisionPosition);
+            BePushed(collisionPosition);
             playerHealth.TakeDamage(10);
         }
 
@@ -375,29 +379,29 @@ public class PlayerController : MonoBehaviour
 
         if (collision.gameObject.CompareTag("point"))
         {
-            levelManager.totalPoints += 1;
+            gameManager.totalPoints += 1;
             playerUIManager.ChangePoints();
             Destroy (collision.gameObject);
         }
     }
 
-    private void recoil(Vector2 otherPosition)
+    private void BePushed(Vector2 otherPosition)
     {
         canMove = false;
-        StartCoroutine(RecoilColorEffect());
+        StartCoroutine(PushColorEffect());
         StartCoroutine(WaitToMove());
 
-        Vector2 recoilVector = rb.position - otherPosition;
+        Vector2 pushVector = rb.position - otherPosition;
 
-        if ((recoilVector.x < 0 && damageRecoil.x > 0) || (recoilVector.x > 0 && damageRecoil.x < 0))
+        if ((pushVector.x < 0 && pushDirection.x > 0) || (pushVector.x > 0 && pushDirection.x < 0))
         {
-            damageRecoil.x *= -1;
+            pushDirection.x *= -1;
         }
 
-        rb.AddForce(damageRecoil, ForceMode2D.Impulse);
+        rb.AddForce(pushDirection, ForceMode2D.Impulse);
     }
 
-    private IEnumerator RecoilColorEffect()
+    private IEnumerator PushColorEffect()
     {
         while (canMove == false)
         {
@@ -410,7 +414,7 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator WaitToMove()
     {
-        yield return new WaitForSeconds(recoilTime);
+        yield return new WaitForSeconds(pushTime);
         canMove = true;
         spriteRenderer.color = colorInicial;
     }
@@ -428,7 +432,7 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator WaitToStopHealing()
     {
-        yield return new WaitForSeconds(recoilTime / 1.5f);
+        yield return new WaitForSeconds(pushTime / 1.5f);
         isHealing = false;
         spriteRenderer.color = colorInicial;
     }

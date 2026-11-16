@@ -9,12 +9,15 @@ public class PlayerUIManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI pointsUI;
     [SerializeField] GameObject playerGO;
     PlayerController playerStamina;
-    LevelManager levelManager;
     HealthSystem playerHealth;
+    private GameManager gameManager;
+    private GameObject gameManagerGO;
 
 
     private void Awake()
     {
+        gameManagerGO = GameObject.FindGameObjectWithTag("GameManager");
+        gameManager = gameManagerGO.GetComponent<GameManager>();
         if (Instance == null)
         {
             Instance = this;
@@ -25,9 +28,9 @@ public class PlayerUIManager : MonoBehaviour
         }
         playerStamina = playerGO.GetComponent<PlayerController>();
         playerHealth = playerGO.GetComponent<HealthSystem>();
-        levelManager = GetComponent<LevelManager>();
-        ChangePoints();
 
+        ChangePoints();
+    
     }
 
     public void ChangeHealthUI()
@@ -42,6 +45,6 @@ public class PlayerUIManager : MonoBehaviour
 
     public void ChangePoints() 
     {
-        pointsUI.text = new string("Points : " + (levelManager.totalPoints));
+        pointsUI.text = new string("Points : " + (gameManager.totalPoints));
     }
 }

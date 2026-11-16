@@ -12,8 +12,8 @@ public class LevelManager : MonoBehaviour
     public GameObject cineMachineCamera;
     public GameObject DeathUIGO;
     public GameObject WinUIGO;
-    public float totalPoints;
-    public float currentPoints;
+    private GameManager gameManager;
+    private GameObject gameManagerGO;
 
     private void Awake()
     {
@@ -25,28 +25,30 @@ public class LevelManager : MonoBehaviour
         {
             Destroy(this);
         }
+
+        gameManagerGO = GameObject.FindGameObjectWithTag("GameManager");
+        gameManager = gameManagerGO.GetComponent<GameManager>();
     }
 
     public void ChangeMainMenu()
     {
         Time.timeScale = 1;
         SceneManager.LoadScene(0);
-        totalPoints = 0;
-        currentPoints = 0;
+        gameManager.ResetScore();
     }
 
     public void ChangeTutorial()
     {
         Time.timeScale = 1;
         SceneManager.LoadScene(1);
-        totalPoints = currentPoints;
+        gameManager.EqualScores();
     }
 
     public void ChangeLevel1()
     {
         Time.timeScale = 1;
         SceneManager.LoadScene(2);
-        totalPoints = currentPoints;
+        gameManager.EqualScores();
     }
 
     public void Death()
@@ -54,7 +56,7 @@ public class LevelManager : MonoBehaviour
         Time.timeScale = 0;
         UIGO.SetActive(false);
         DeathUIGO.SetActive(true);
-        totalPoints = currentPoints;
+        gameManager.EqualScores();
     }
 
     public void Win()
@@ -62,6 +64,6 @@ public class LevelManager : MonoBehaviour
         Time.timeScale = 0;
         UIGO.SetActive(false);
         WinUIGO.SetActive(true);
-        currentPoints = totalPoints + currentPoints;
+        gameManager.AddScores();
     }
 }

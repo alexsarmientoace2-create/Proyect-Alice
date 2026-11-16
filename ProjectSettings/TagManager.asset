@@ -12,6 +12,7 @@ TagManager:
   - death
   - win
   - point
+  - GameManager
   layers:
   - Default
   - TransparentFX
