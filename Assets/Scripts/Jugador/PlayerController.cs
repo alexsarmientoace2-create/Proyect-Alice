@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Runtime.InteropServices;
 using TMPro;
+using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -14,7 +15,6 @@ public class PlayerController : MonoBehaviour
     private InputAction move;
     private InputAction jump;
     private InputAction sprint;
-    private InputAction attack;
 
     [Header("Movement Settings")]
     public float movementSpeed;
@@ -32,11 +32,14 @@ public class PlayerController : MonoBehaviour
 
 
     [Header("Jump Settings")]
-    public float jumpForce;
     // Multiplicador para recortar la velocidad de ascenso si se suelta el botón antes de tiempo
     [SerializeField] private float jumpCutMultiplier;
     // Controla lo rápido o suave que frena al cortar el salto (a mayor número, más rápido frena)
-    [SerializeField] private float jumpSmoothFactor; 
+    [SerializeField] private float jumpSmoothFactor;
+    public float jumpForce;
+
+
+
     [Header("State & Physics")]
     private bool isGrounded;
     private bool isJumping;
@@ -53,18 +56,27 @@ public class PlayerController : MonoBehaviour
     private GameManager gameManager;
     private GameObject gameManagerGO;
 
+    [Header("Camera")]
+    [SerializeField] private float zoomSpeed;
+    [SerializeField] private float defaultZoom;
+    [SerializeField] private float sprintZoom;
+    [SerializeField] private GameObject cinemachineGO;
+    private CinemachineCamera cinemachineCamera;
+    float refValue = 2;
+   
+
     [Header("Combat & Health")]
-    private HealthSystem playerHealth;
-    public float damageTaken;
     [SerializeField] private Vector2 pushDirection;
     [SerializeField] private float pushTime;
     [SerializeField] private Collider2D hurtboxCollider;
+    private HealthSystem playerHealth;
+    public float damageTaken;
+
 
     [Header("Combat Visuals & Effects")]
-    [SerializeField] private Vector3 hitboxStartingPosition;
-    [SerializeField] private GameObject hitbox;
     private Color colorInicial;
     private bool isHealing = false;
+    
 
     [Header("Ground Detection")]
     [SerializeField] private LayerMask groundLayer;
@@ -85,21 +97,18 @@ public class PlayerController : MonoBehaviour
         levelManager = ManagerGo.GetComponent<LevelManager>();
         playerUIManager = ManagerGo.GetComponent<PlayerUIManager>();
         currentStamina = maxStamina;
-        hitbox.transform.position = hitboxStartingPosition;
         currentSpeed = movementSpeed;
-
+        cinemachineCamera = cinemachineGO.GetComponent<CinemachineCamera>();
         move = InputSystem.actions.FindAction("move");
         jump = InputSystem.actions.FindAction("jump");
         sprint = InputSystem.actions.FindAction("Sprint");
-        attack = InputSystem.actions.FindAction("Attack");
-
         rb = GetComponent<Rigidbody2D>();
         playerHealth = GetComponent<HealthSystem>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-        swordSpriteRenderer = hitbox.GetComponent<SpriteRenderer>();
         colorInicial = spriteRenderer.color;
         animator = GetComponent<Animator>();
         playerUIManager.ChangeStaminaUI();
+        cinemachineCamera.Lens.OrthographicSize = defaultZoom;
     }
 
     private void FixedUpdate()
@@ -289,14 +298,13 @@ public class PlayerController : MonoBehaviour
         if (direccionMovimiento.x < 0)
         {
             spriteRenderer.flipX = true;
-            swordSpriteRenderer.flipX= true;
-            hitbox.transform.localPosition = new Vector3(-Mathf.Abs(hitboxStartingPosition.x), hitboxStartingPosition.y, hitboxStartingPosition.z);
+           
+           
         }
         else if (direccionMovimiento.x > 0)
         {
             spriteRenderer.flipX = false;
-            swordSpriteRenderer.flipX = false;
-            hitbox.transform.localPosition = new Vector3(Mathf.Abs(hitboxStartingPosition.x), hitboxStartingPosition.y, hitboxStartingPosition.z);
+            
         }
     }
 
@@ -315,6 +323,7 @@ public class PlayerController : MonoBehaviour
         {
             if (canMove == true && isGrounded && rb.linearVelocityX != 0)
             {
+                cinemachineCamera.Lens.OrthographicSize = Mathf.SmoothDamp(cinemachineCamera.Lens.OrthographicSize, sprintZoom, ref refValue, zoomSpeed);
                 isSprinting = true;
                 currentStamina -= Time.deltaTime;
                 currentSpeed = movementSpeed * sprintSpeedMultiplier;
@@ -326,24 +335,18 @@ public class PlayerController : MonoBehaviour
         currentSpeed = movementSpeed;
         animator.SetBool("isRunning", false);
         isSprinting = false;
+        while (cinemachineCamera.Lens.OrthographicSize != defaultZoom)
+        {
+            cinemachineCamera.Lens.OrthographicSize = Mathf.SmoothDamp(cinemachineCamera.Lens.OrthographicSize, defaultZoom, ref refValue, zoomSpeed);
+            yield return null;
+        }
     }
 
     #endregion
 
     #region Combat & Health Mechanics
 
-    public void OnAttack()
-    {
-        if (isGrounded && canMove == true)
-        {
-            animator.SetBool("isAttacking", true);
-        }
-    }
 
-    public void StopAttack()
-    {
-        animator.SetBool("isAttacking", false);
-    }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
