@@ -20,4 +20,6 @@ public class NPCVolador : NPCFather
         rb.linearVelocity = new Vector2(movementSpeed * Time.deltaTime, Ydirection);
 
     }
+
+    
 }

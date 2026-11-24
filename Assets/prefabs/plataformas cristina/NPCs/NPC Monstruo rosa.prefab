@@ -130,7 +130,7 @@ Transform:
   m_GameObject: {fileID: 7991440816934852333}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.29828024, y: -2.86635, z: 0}
+  m_LocalPosition: {x: -2.6098561, y: -1.2270781, z: 0}
   m_LocalScale: {x: 5.087313, y: 5.087313, z: 5.087313}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -271,7 +271,7 @@ Animator:
   m_GameObject: {fileID: 7991440816934852333}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 80618db20590d004fa101fa25afd60cb, type: 2}
+  m_Controller: {fileID: 9100000, guid: 9f62c200a31607b41b80e4358de548bc, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -302,7 +302,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   groundRayLenght: 0.6
-  wallRayLenght: 0.4
+  wallRayLenght: 0.63
   pushDirection: {x: 2, y: 2}
   currentHealth: 3
   dropItem: {fileID: 6141550435330094966, guid: 1c04e90da0d7fb64081f1764355a2dd1, type: 3}
+  throwDirection: {x: 0, y: 0}
+  Rock: {fileID: 706773922179537985, guid: fa7cf67ace8bc804f83cb15c678b9c21, type: 3}
+  rockSpawner: {fileID: 0}

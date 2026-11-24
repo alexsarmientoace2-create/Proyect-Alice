@@ -1,3 +1,4 @@
+using TMPro;
 using Unity.VectorGraphics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -6,7 +7,8 @@ using UnityEngine.UIElements;
 public class LevelManager : MonoBehaviour
 {
     public static LevelManager Instance;
-
+    [SerializeField] TextMeshProUGUI deathPointsUI;
+    [SerializeField] TextMeshProUGUI winPointsUI;
     public GameObject playerGO;
     public GameObject UIGO;
     public GameObject cineMachineCamera;
@@ -53,6 +55,7 @@ public class LevelManager : MonoBehaviour
 
     public void Death()
     {
+        deathPointsUI.text = new string("Points : " + gameManager.totalPoints);
         Time.timeScale = 0;
         UIGO.SetActive(false);
         DeathUIGO.SetActive(true);
@@ -65,5 +68,6 @@ public class LevelManager : MonoBehaviour
         UIGO.SetActive(false);
         WinUIGO.SetActive(true);
         gameManager.AddScores();
+        winPointsUI.text = new string("Points : " + gameManager.currentPoints);
     }
 }
